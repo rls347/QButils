@@ -156,12 +156,18 @@ def datread(filename, *args):
 
 def dattoh5(filename):
     x=datread(filename)
-    z=x['Z_eff']
+    ze=x['Z_eff']
     h=x['hgt']
+    z=x['Z_cor']
+    g=x['g_atten']
+    a=x['h_atten']
     outputfile = os.path.splitext(filename)[0]+'.h5'
     with hdf.File(outputfile, 'w') as hf:
         hf.create_dataset('reflectivity', data=z)
         hf.create_dataset('height',data=h)
+        hf.create_dataset('z_eff',data=ze)
+        hf.create_dataset('atten',data=a)
+        hf.create_dataset('gas_atten',data=g)
     os.system('rm '+filename)
     return outputfile
 
