@@ -6,7 +6,7 @@ from matplotlib.collections import LineCollection
 from rachelutils.hdfload import getvar
 
 def plotprofs(profiles, filename, colorvar=None):
-    height = getvar('/home/rstorer/aug11-control-revu-020.h5','z_coords')/1000.
+    height = getvar('QB1d.h5','z_coords')/1000.
     plotvars = []
     for var in profiles:
         plotvars.append((var,height))
