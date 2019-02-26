@@ -4,9 +4,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.collections import LineCollection
 from rachelutils.hdfload import getvar
+import pkg_resources
 
 def plotprofs(profiles, filename, colorvar=None):
-    height = getvar('QB1d.h5','z_coords')/1000.
+    hfile = pkg_resources.resource_filename(__name__, 'QB1d.h5')
+    height = getvar(hfile,'z_coords')/1000.
     plotvars = []
     for var in profiles:
         plotvars.append((var,height))
@@ -27,6 +29,28 @@ def plotprofs(profiles, filename, colorvar=None):
     ax.set_xlim(-35,45)
     plt.savefig(filename)
     plt.clf()
+    plt.close()
+    return
 
+def makebox(var,titlename,xname,filename,hh):
+    plt.boxplot(var,showfliers=False)
+    plt.title(titlename)
+    plt.xlabel(xname)
+    plt.xticks(np.arange(len(hh))+1,hh)
+    plt.savefig(filename)
+    plt.clf()
+    return
+
+def meanplot(var, titlename, varname, filname, hh):
+    yvar = np.zeros(len(var))
+    xvar = np.array(hh)
+    for i,v in enumerate(var):
+        yvar[i] = np.mean(np.array(v))
+    plt.scatter(xvar,yvar)
+    plt.title(titlename)
+    plt.ylabel(varname)
+    plt.savefig(filname)
+    plt.clf()
+    plt.close()
     return
 
