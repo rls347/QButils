@@ -33,7 +33,10 @@ def plotprofs(profiles, filename, colorvar=None):
     return
 
 def makebox(var,titlename,xname,filename,hh):
-    plt.boxplot(var,showfliers=False)
+    zipp = zip(hh,var)
+    z = [x for _,x in sorted(zipp)]
+    hh=sorted(hh)
+    plt.boxplot(z,showfliers=False)
     plt.title(titlename)
     plt.xlabel(xname)
     plt.xticks(np.arange(len(hh))+1,hh)
