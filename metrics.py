@@ -29,7 +29,7 @@ def getmicroparams(runs):
 
     pvals=np.array(pvals)
     svals=np.array(svals)
-    avals=np.array(svals)
+    avals=np.array(avals)
     gvals=np.array(gvals)
     hvals=np.array(hvals)
     return pvals,svals,avals,gvals,hvals
