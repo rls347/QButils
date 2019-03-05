@@ -19,12 +19,12 @@ def plotprofs(profiles, filename, colorvar=None):
     lines = [zip(x,y) for x, y in plotvars]
     fig, ax = plt.subplots()
     if colorvar is None:
-        lines1 = LineCollection(lines, linewidth=1)
+        lines1 = LineCollection(lines, linewidth=2)
         ax.add_collection(lines1)
     else:
         lines1=LineCollection(lines,array = colorvar, cmap = plt.cm.plasma,linewidth=2)
         ax.add_collection(lines1)
-    plt.plot(meanvar,height,color='black',linewidth=2)
+#    plt.plot(meanvar,height,color='black',linewidth=2)
     ax.set_ylim(0,18)
     ax.set_xlim(-35,45)
     plt.savefig(filename)
@@ -48,10 +48,10 @@ def meanplot(var, titlename, varname, filname, hh):
     yvar = np.zeros(len(var))
     xvar = np.array(hh)
     for i,v in enumerate(var):
-        yvar[i] = np.mean(np.array(v))
+        yvar[i] = np.mean(v)
     plt.scatter(xvar,yvar)
     plt.title(titlename)
-    plt.ylabel(varname)
+    plt.xlabel(varname)
     plt.savefig(filname)
     plt.clf()
     plt.close()

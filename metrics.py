@@ -14,6 +14,10 @@ def getprof(fil):
     prof = getvar(fil,'reflectivity')[:,0,0]
     return (prof)
 
+def getatten(fil):
+    a=getvar(fil,'atten')[1,0,0]
+    return a
+
 def getmicroparams(runs):
     pvals = []
     svals = []
@@ -93,28 +97,14 @@ def zmean(prof):
     dh = np.diff(h)
     return (integ/np.sum(dh))
 
-def profdiff(fil1,fil2):
-    p1 = getprof(fil1)
-    p2 = getprof(fil2)
-    z1 = zspace(p1)
-    z2 = zspace(p2)
-    return z1-z2
+def profratio(p1,p2):
+    return p1-p2
 
-def profratio(fil1,fil2):
-    p1 = getprof(fil1)
-    p2 = getprof(fil2)
-    z1 = zspace(p1)
-    z2 = zspace(p2)
-    ratio = z1/z2
-    ratio[z2==0]=0.
-    return ratio
+def maxprofratio(p1,p2):
+    return np.max(p1-p2)
 
-def intprofdiff(fil1,fil2):
-    diff = profdiff(fil1,fil2)
-    return calcint(diff)
-
-def intprofratio(fil1,fil2):
-    ratio = profratio(fil1,fil2)
+def intprofratio(p1,p2):
+    ratio = profratio(p1,p2)
     return calcint(ratio)
 
 def returnstats(var):
