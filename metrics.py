@@ -1,6 +1,14 @@
 import numpy as np
 import pkg_resources
-from rachelutils.hdfload import getvar
+
+def getvar(fil, varname):
+    try:
+        var = np.squeeze(fil[varname].value)
+    except:
+        filey = hdf.File(fil, 'r')
+        var = np.squeeze(filey[varname].value)
+        filey.close()
+    return var
 
 def gettupleprof(fil):
     '''When given a tuple of the form (x,filename), returns (x, reflectivity)'''

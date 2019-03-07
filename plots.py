@@ -3,7 +3,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.collections import LineCollection
-from rachelutils.hdfload import getvar
+from QButils.metrics import getvar
 import pkg_resources
 
 def plotprofs(profiles, filename, colorvar=None):
