@@ -1,5 +1,6 @@
 import numpy as np
 import pkg_resources
+import h5py as hdf
 
 def getvar(fil, varname):
     try:

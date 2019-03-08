@@ -56,4 +56,18 @@ def meanplot(var, titlename, varname, filname, hh):
     plt.clf()
     plt.close()
     return
+    
+def plotdicts(dic,var):
+    hfile = pkg_resources.resource_filename(__name__, 'QB1d.h5')
+    height = getvar(hfile,'z_coords')/1000.
+    for key in dic.keys():
+        plt.plot(dic[key][var],height,label=key)
+    plt.legend()
+    plt.savefig('profile-'+var+'.png')
+    plt.clf()
+    plt.close()
+    
+    
+    
+    
 
