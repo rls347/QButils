@@ -21,6 +21,12 @@ def getprof(fil):
         Will need to generalize to accept coordinates at some point. '''
     prof = getvar(fil,'reflectivity')[:,0,0]
     return (prof)
+    
+def prof_noatten(fil):
+    '''Gets a single reflectivity profile when given a filename.
+        Will need to generalize to accept coordinates at some point. '''
+    prof = getvar(fil,'z_eff')[:,0,0]
+    return (prof)
 
 def getatten(fil):
     '''Gets a single path integrated attenuation value when given a filename.

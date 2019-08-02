@@ -317,7 +317,8 @@ def runquick(runvar):
         os.system(cmd)
         os.system('rm '+setfile)
         os.system('rm '+hfile)
-        return outputfile
+        h5file = dattoh5(outputfile)
+        return h5file
     else:
         print filename, err
         return

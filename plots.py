@@ -13,6 +13,8 @@ def plotprofs(profiles, filename, colorvar=None):
     for var in profiles:
         plotvars.append((var,height))
     vararray = np.array(profiles)
+    maxval = np.max(vararray)
+    minval = np.min(vararray[vararray>-900])
     vararray[vararray<-900]=np.nan
     meanvar = np.nanmean(vararray,0)
     stdvar = np.nanstd(vararray,0)
@@ -22,11 +24,13 @@ def plotprofs(profiles, filename, colorvar=None):
         lines1 = LineCollection(lines, linewidth=2)
         ax.add_collection(lines1)
     else:
-        lines1=LineCollection(lines,array = colorvar, cmap = plt.cm.plasma,linewidth=2)
+        lines1=LineCollection(lines,array = np.array(colorvar), cmap = plt.cm.plasma,linewidth=2)
         ax.add_collection(lines1)
 #    plt.plot(meanvar,height,color='black',linewidth=2)
-    ax.set_ylim(0,18)
-    ax.set_xlim(-35,45)
+    #ax.set_ylim(0,18)
+    #ax.set_xlim(-35,45)
+    ax.set_ylim(0,height.max())
+    ax.set_xlim(minval,maxval)
     plt.savefig(filename)
     plt.clf()
     plt.close()
