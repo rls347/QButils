@@ -19,7 +19,10 @@ def gettupleprof(fil):
 def getprof(fil):
     '''Gets a single reflectivity profile when given a filename.
         Will need to generalize to accept coordinates at some point. '''
-    prof = getvar(fil,'reflectivity')[:,0,0]
+    try:
+        prof = getvar(fil,'reflectivity')[:,0,0]
+    except:
+        prof = getvar(fil,'reflectivity')
     return (prof)
     
 def prof_noatten(fil):

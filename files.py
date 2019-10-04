@@ -4,6 +4,74 @@ import h5py as hdf
 from QButils.sanity import varcheck
 
 
+def slowbeam_read(filename, ms=False):
+    """
+    Slowbeam reader.
+
+    Input
+    -----
+    filename: a Slowbeam file
+    ms (opt): boolean flag whether to read MS
+
+    Output
+    ------
+    ref: dictionary of values
+
+    """
+    import numpy as np
+    import struct
+
+    ref = {}
+
+    if filename[-3:] == '.gz':
+        import gzip
+        file = gzip.open(filename, 'rb')
+    else:
+        file = open(filename, 'rb')
+    
+    ref['filename'] = file.read(200)
+    ref['freq'] = struct.unpack( "f", file.read(4) )[0]
+    ref['nx'] = struct.unpack( "hxx", file.read(4) )[0]
+    ref['ny'] = struct.unpack( "hxx", file.read(4) )[0]
+    ref['nz'] = struct.unpack( "hxx", file.read(4) )[0]
+
+    grid3d = ref['nz'] * ref['ny'] * ref['nx']
+
+    shape3d = [ ref['nz'], ref['ny'], ref['nx'] ]
+
+    ref['Z_eff'] = np.reshape( \
+                struct.unpack( str(grid3d)+"f", file.read(4*grid3d) ), \
+                shape3d )
+
+    ref['doppler'] = np.reshape( \
+                struct.unpack( str(grid3d)+"f", file.read(4*grid3d) ), \
+                shape3d )
+
+    ref['h_att'] = np.reshape( \
+                struct.unpack( str(grid3d)+"f", file.read(4*grid3d) ), \
+                shape3d )
+
+    ref['g_att'] = np.reshape( \
+                struct.unpack( str(grid3d)+"f", file.read(4*grid3d) ), \
+                shape3d )
+                
+    ref['hgt'] = np.reshape( \
+                struct.unpack( str(grid3d)+"f", file.read(4*grid3d) ), \
+                shape3d )
+
+    if ms == True:
+        ref['Z_ss'] = np.reshape( \
+                    struct.unpack( str(grid3d)+"f", file.read(4*grid3d) ), \
+                    shape3d )
+
+        ref['Z_ms'] = np.reshape( \
+                    struct.unpack( str(grid3d)+"f", file.read(4*grid3d) ), \
+                    shape3d )
+
+    file.close()
+
+    return ref
+
 def datread(filename, *args):
     """
     A QuickBeam reader. -- code from Ethan Nelson
@@ -155,22 +223,41 @@ def datread(filename, *args):
         return ref
 
 def dattoh5(filename):
-    x=datread(filename)
-    ze=x['Z_eff']
-    h=x['hgt']
-    z=x['Z_cor']
-    g=x['g_atten']
-    a=x['h_atten']
+    x = datread(filename)
+    ze = x['Z_eff']
+    h = x['hgt']
+    z = x['Z_cor']
+    g = x['g_atten']
+    a = x['h_atten']
     outputfile = os.path.splitext(filename)[0]+'.h5'
     with hdf.File(outputfile, 'w') as hf:
-        hf.create_dataset('reflectivity', data=z)
-        hf.create_dataset('height',data=h)
-        hf.create_dataset('z_eff',data=ze)
-        hf.create_dataset('atten',data=a)
-        hf.create_dataset('gas_atten',data=g)
+        hf.create_dataset('reflectivity', data=z.astype(np.float32))
+        hf.create_dataset('height',data=h.astype(np.float32))
+        hf.create_dataset('z_eff',data=ze.astype(np.float32))
+        hf.create_dataset('atten',data=a.astype(np.float32))
+        hf.create_dataset('gas_atten',data=g.astype(np.float32))
     os.system('rm '+filename)
     return outputfile
-
+    
+def SBtoh5(filename):
+    x = slowbeam_read(filename)
+    ze = np.squeeze(x['Z_eff'])
+    ze[ze<-999]=-999
+    h = np.squeeze(x['hgt'])
+    g = np.squeeze(x['g_att'])
+    a = np.squeeze(x['h_att'])
+    z = ze - a - g
+    z[z<-999]=-999
+    outputfile = os.path.splitext(filename)[0]+'.h5'
+    with hdf.File(outputfile, 'w') as hf:
+        hf.create_dataset('reflectivity', data=z.astype(np.float32))
+        hf.create_dataset('height',data=h.astype(np.float32))
+        hf.create_dataset('z_eff',data=ze.astype(np.float32))
+        hf.create_dataset('atten',data=a.astype(np.float32))
+        hf.create_dataset('gas_atten',data=g.astype(np.float32))
+    os.system('rm '+filename)
+    return outputfile    
+    
 def hclassfile(outfilename, varin):
     '''Routine to write an hclass file.
        Initial var dictionary is set to default RAMS values.
@@ -247,7 +334,7 @@ def settingsfile(settingsfilename, **kwargs):
        User must specify a filename. '''
 
     defaultkwargs = {'sensor':'dtrain', 'freq':35.5, 'surface_radar':0, 'use_mie_tables':0,
-             'use_gas_abs':0, 'sonde_format':2, 'do_ray':1, 'melt_lay':1, 'input_format':1, 
+             'use_gas_abs':1, 'sonde_format':2, 'do_ray':1, 'melt_lay':1, 'input_format':1, 
              'output_format':2, 'output_disp':0, 'k2':-1, 'hclassfile':'hclass.dat', 
              'miefile':'mie_table.dat'}
 
@@ -289,7 +376,7 @@ def settingsfile(settingsfilename, **kwargs):
 
     return settingsfilename 
 
-def runquick(runvar):
+def runquick(runvar,removefiles=True):
     ''' Set up to run quickbeam given an input file and settings info.
     
         Code reads in 'runvar' which is meant to be a tuple containing:
@@ -315,8 +402,9 @@ def runquick(runvar):
         setfile = settingsfile(settingsfilename, **settings)
         cmd = 'quickbeam_rams '+ filename +' '+ outputfile + '  ' + setfile
         os.system(cmd)
-        os.system('rm '+setfile)
-        os.system('rm '+hfile)
+        if removefiles:
+            os.system('rm '+setfile)
+            os.system('rm '+hfile)
         h5file = dattoh5(outputfile)
         return h5file
     else:
