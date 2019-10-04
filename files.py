@@ -246,6 +246,7 @@ def SBtoh5(filename):
     h = np.squeeze(x['hgt'])
     g = np.squeeze(x['g_att'])
     a = np.squeeze(x['h_att'])
+    dp = np.squeeze(x['doppler'])
     z = ze - a - g
     z[z<-999]=-999
     outputfile = os.path.splitext(filename)[0]+'.h5'
@@ -255,6 +256,7 @@ def SBtoh5(filename):
         hf.create_dataset('z_eff',data=ze.astype(np.float32))
         hf.create_dataset('atten',data=a.astype(np.float32))
         hf.create_dataset('gas_atten',data=g.astype(np.float32))
+        hf.create_dataset('doppler',data=dp.astype(np.float32))
     os.system('rm '+filename)
     return outputfile    
     
