@@ -3,6 +3,19 @@ import os
 import h5py as hdf
 from QButils.sanity import varcheck
 
+def QBdefaults(filestring,name,freq=None):
+    if filestring[-3:] == '.h5':
+        filestring=filestring[:-3]
+    m = 'default'
+    s = {}
+    if freq is not None:
+        s['freq']=freq
+    hydrofile = 'hclass'+name+'.dat'
+    settingsfile = 'settings'+name+'.dat'
+    ramsfile = filestring +'.h5'
+    outputfile = filestring+'QB.dat'
+    runvar = (ramsfile,m,s,hydrofile,settingsfile,outputfile,0)
+    return runvar
 
 def slowbeam_read(filename, ms=False):
     """
@@ -36,8 +49,9 @@ def slowbeam_read(filename, ms=False):
     ref['nz'] = struct.unpack( "hxx", file.read(4) )[0]
 
     grid3d = ref['nz'] * ref['ny'] * ref['nx']
-
     shape3d = [ ref['nz'], ref['ny'], ref['nx'] ]
+    nz = ref['nz']
+    shape1d = [nz]
 
     ref['Z_eff'] = np.reshape( \
                 struct.unpack( str(grid3d)+"f", file.read(4*grid3d) ), \
@@ -56,10 +70,11 @@ def slowbeam_read(filename, ms=False):
                 shape3d )
                 
     ref['hgt'] = np.reshape( \
-                struct.unpack( str(grid3d)+"f", file.read(4*grid3d) ), \
-                shape3d )
+                struct.unpack( str(nz)+"f", file.read(4*nz) ), \
+                shape1d )
 
-    if ms == True:
+#    if ms == True:
+    try:
         ref['Z_ss'] = np.reshape( \
                     struct.unpack( str(grid3d)+"f", file.read(4*grid3d) ), \
                     shape3d )
@@ -67,8 +82,14 @@ def slowbeam_read(filename, ms=False):
         ref['Z_ms'] = np.reshape( \
                     struct.unpack( str(grid3d)+"f", file.read(4*grid3d) ), \
                     shape3d )
+                    
+        ref['atten_ss'] = np.reshape( \
+                    struct.unpack( str(grid3d)+"f", file.read(4*grid3d) ), \
+                    shape3d )
 
-    file.close()
+        file.close()
+    except:
+        file.close()
 
     return ref
 
@@ -249,6 +270,10 @@ def SBtoh5(filename):
     dp = np.squeeze(x['doppler'])
     z = ze - a - g
     z[z<-999]=-999
+    if 'Z_ms' in x:
+        ss = np.squeeze(x['Z_ss'])
+        ms = np.squeeze(x['Z_ms'])
+        atten_ss = np.squeeze(x['atten_ss'])
     outputfile = os.path.splitext(filename)[0]+'.h5'
     with hdf.File(outputfile, 'w') as hf:
         hf.create_dataset('reflectivity', data=z.astype(np.float32))
@@ -257,6 +282,10 @@ def SBtoh5(filename):
         hf.create_dataset('atten',data=a.astype(np.float32))
         hf.create_dataset('gas_atten',data=g.astype(np.float32))
         hf.create_dataset('doppler',data=dp.astype(np.float32))
+        if 'Z_ms' in x:
+            hf.create_dataset('z_ss', data = ss.astype(np.float32))
+            hf.create_dataset('z_ms', data = ms.astype(np.float32))
+            hf.create_dataset('atten_ss', data = atten_ss.astype(np.float32))
     os.system('rm '+filename)
     return outputfile    
     
