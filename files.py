@@ -53,10 +53,6 @@ def slowbeam_read(filename, ms=False):
     nz = ref['nz']
     shape1d = [nz]
 
-    ref['Z_eff'] = np.reshape( \
-                struct.unpack( str(grid3d)+"f", file.read(4*grid3d) ), \
-                shape3d )
-
     ref['doppler'] = np.reshape( \
                 struct.unpack( str(grid3d)+"f", file.read(4*grid3d) ), \
                 shape3d )
@@ -72,24 +68,24 @@ def slowbeam_read(filename, ms=False):
     ref['hgt'] = np.reshape( \
                 struct.unpack( str(nz)+"f", file.read(4*nz) ), \
                 shape1d )
-
-#    if ms == True:
-    try:
-        ref['Z_ss'] = np.reshape( \
-                    struct.unpack( str(grid3d)+"f", file.read(4*grid3d) ), \
-                    shape3d )
-
-        ref['Z_ms'] = np.reshape( \
-                    struct.unpack( str(grid3d)+"f", file.read(4*grid3d) ), \
-                    shape3d )
+                
+    ref['Z_ss'] = np.reshape( \
+                struct.unpack( str(grid3d)+"f", file.read(4*grid3d) ), \
+                shape3d )
+    
+    ref['Z_ms'] = np.reshape( \
+                struct.unpack( str(grid3d)+"f", file.read(4*grid3d) ), \
+                shape3d )
                     
-        ref['atten_ss'] = np.reshape( \
-                    struct.unpack( str(grid3d)+"f", file.read(4*grid3d) ), \
-                    shape3d )
+    ref['atten_ss'] = np.reshape( \
+                struct.unpack( str(grid3d)+"f", file.read(4*grid3d) ), \
+                shape3d )
+                
+    ref['doppler_ms'] = np.reshape( \
+                struct.unpack( str(grid3d)+"f", file.read(4*grid3d) ), \
+                shape3d )
 
-        file.close()
-    except:
-        file.close()
+    file.close()
 
     return ref
 
@@ -262,30 +258,28 @@ def dattoh5(filename):
     
 def SBtoh5(filename):
     x = slowbeam_read(filename)
-    ze = np.squeeze(x['Z_eff'])
-    ze[ze<-999]=-999
     h = np.squeeze(x['hgt'])
     g = np.squeeze(x['g_att'])
     a = np.squeeze(x['h_att'])
     dp = np.squeeze(x['doppler'])
-    z = ze - a - g
-    z[z<-999]=-999
-    if 'Z_ms' in x:
-        ss = np.squeeze(x['Z_ss'])
-        ms = np.squeeze(x['Z_ms'])
-        atten_ss = np.squeeze(x['atten_ss'])
+    ss = np.squeeze(x['Z_ss'])
+    ms = np.squeeze(x['Z_ms'])
+    atten_ss = np.squeeze(x['atten_ss'])
+    dp_ms = np.squeeze(x['doppler_ms'])
+    
     outputfile = os.path.splitext(filename)[0]+'.h5'
     with hdf.File(outputfile, 'w') as hf:
-        hf.create_dataset('reflectivity', data=z.astype(np.float32))
+        #hf.create_dataset('reflectivity', data=z.astype(np.float32))
         hf.create_dataset('height',data=h.astype(np.float32))
-        hf.create_dataset('z_eff',data=ze.astype(np.float32))
-        hf.create_dataset('atten',data=a.astype(np.float32))
-        hf.create_dataset('gas_atten',data=g.astype(np.float32))
+        #hf.create_dataset('z_eff',data=ze.astype(np.float32))
+        #hf.create_dataset('atten',data=a.astype(np.float32))
+        #hf.create_dataset('gas_atten',data=g.astype(np.float32))
         hf.create_dataset('doppler',data=dp.astype(np.float32))
-        if 'Z_ms' in x:
-            hf.create_dataset('z_ss', data = ss.astype(np.float32))
-            hf.create_dataset('z_ms', data = ms.astype(np.float32))
-            hf.create_dataset('atten_ss', data = atten_ss.astype(np.float32))
+        hf.create_dataset('z_ss', data = ss.astype(np.float32))
+        hf.create_dataset('z_ms', data = ms.astype(np.float32))
+        hf.create_dataset('atten_ss', data = atten_ss.astype(np.float32))
+        hf.create_dataset('doppler_ms',data=dp_ms.astype(np.float32))
+        
     os.system('rm '+filename)
     return outputfile    
     
