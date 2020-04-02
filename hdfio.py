@@ -121,7 +121,6 @@ def perturbprofile(infile,outfile,perturbations,flag=None):
                 a.attrs[tt]=ff['y_coords'].attrs[tt]
     except:
         outfile = None
-        
     return outfile
 
 
