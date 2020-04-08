@@ -54,12 +54,13 @@ def makesingleprofile(ramsfile,profilefile,xval,yval):
 
 
 def perturbprofile(infile,outfile,perturbations,flag=None):
-    vars = ['agg_concen_kg','aggregates','cloud','cloud_concen_mg','drizzle',
-            'drizzle_concen_mg','graup_concen_kg','graupel','hail','hail_concen_kg',
+    vars3d = ['agg_concen_kg','aggregates','cloud','cloud_concen_mg','drizzle',
+            'drizzle_concen_mg','geo','graup_concen_kg','graupel','hail','hail_concen_kg',
             'press','pris_concen_kg','pristine','rain','rain_concen_kg','relhum',
-            'snow','snow_concen_kg','tempk','vapor','w']
+            'snow','snow_concen_kg','tempk','theta','theta_e','total_cond','u','ue','v','vapor',
+            've','w']
 
-    vars2d = ['lat','lon','pcprate']
+    vars2d = ['albedt','land','lat','lon','pcpg','pcprate','speed10m','sst','tempf2m','topt','totpcp','vertint_cond','vertint_vapor']
 
     try:
         ff=hdf.File(infile,'r')
@@ -126,12 +127,13 @@ def perturbprofile(infile,outfile,perturbations,flag=None):
 
 
 def changevalue(infile,outfile,perturbations):
-    vars = ['agg_concen_kg','aggregates','cloud','cloud_concen_mg','drizzle',
-            'drizzle_concen_mg','graup_concen_kg','graupel','hail','hail_concen_kg',
+    vars3d = ['agg_concen_kg','aggregates','cloud','cloud_concen_mg','drizzle',
+            'drizzle_concen_mg','geo','graup_concen_kg','graupel','hail','hail_concen_kg',
             'press','pris_concen_kg','pristine','rain','rain_concen_kg','relhum',
-            'snow','snow_concen_kg','tempk','vapor','w']
+            'snow','snow_concen_kg','tempk','theta','theta_e','total_cond','u','ue','v','vapor',
+            've','w']
 
-    vars2d = ['lat','lon','pcprate']
+    vars2d = ['albedt','land','lat','lon','pcpg','pcprate','speed10m','sst','tempf2m','topt','totpcp','vertint_cond','vertint_vapor']
 
     try:
         ff=hdf.File(infile,'r')
