@@ -139,7 +139,7 @@ def changevalue(infile,outfile,perturbations):
         ff=hdf.File(infile,'r')
 
         with hdf.File(outfile,'w') as hf:
-            for var in vars:
+            for var in vars3d:
                 varout = ff[var].value[:]
                 if var in perturbations:
                     if type(perturbations[var])==np.ndarray:
