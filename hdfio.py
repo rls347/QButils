@@ -66,7 +66,7 @@ def perturbprofile(infile,outfile,perturbations,flag=None):
         ff=hdf.File(infile,'r')
 
         with hdf.File(outfile,'w') as hf:
-            for var in vars:
+            for var in vars3d:
                 varout = ff[var].value[:]
                 if var in perturbations:
                     if flag == 'factor' and type(perturbations[var])==float:
@@ -80,11 +80,6 @@ def perturbprofile(infile,outfile,perturbations,flag=None):
                         else:
                             tmp=perturbations[var]
                         varout = varout + tmp
-                        # if Y is not None:
-#                             Y=Y.reshape(varout.shape)
-#                             zer = np.where(np.logical_or(varout < 0,Y < -900))
-#                         else:
-#
                         zer = np.where(varout<0)
                         #varout[zer]=0.0
                 a=hf.create_dataset(var,data=varout)
