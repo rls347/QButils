@@ -1,13 +1,18 @@
 import numpy as np
 import h5py as hdf
+from netCDF4 import Dataset
 
 def getvar(fil, varname):
     try:
         var = np.squeeze(fil[varname].value)
     except:
-        filey = hdf.File(fil, 'r')
-        var = np.squeeze(filey[varname].value)
-        filey.close()
+        if fil[-3:] == '.h5':
+            filey = hdf.File(fil, 'r')
+            var = np.squeeze(filey[varname].value)
+            filey.close()
+        if fil[-3:] == '.nc':
+            filey = Dataset(fil, mode = "r")
+            var = np.asarray(filey.variables[varname])
     return var
 
 def makesingleprofile(ramsfile,profilefile,xval,yval):
