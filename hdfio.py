@@ -8,7 +8,7 @@ def getvar(fil, varname):
     except:
         if fil[-3:] == '.h5':
             filey = hdf.File(fil, 'r')
-            var = np.squeeze(filey[varname].value)
+            var = np.squeeze(filey[varname])
             filey.close()
         if fil[-3:] == '.nc':
             filey = Dataset(fil, mode = "r")
